@@ -1,45 +1,53 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from data_handler import DATA_HANDLER
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.decomposition import PCA
-from sklearn.utils import shuffle
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import cross_val_score
 
 
-#Parent class for all data mining alorithms
+#Parent class for all data mining algorithms
 class DATA_MINER():
-    def __init__(self,X,y,x_train,x_test,y_train,y_test,with_PCA=False,n_components=0):
-        self.X,self.y = shuffle(X,y,random_state=0)
-        self.x_train, self.x_test, self.y_train, self.y_test = x_train,x_test,y_train,y_test
+    def __init__(self):
         self.model=None
-        self.with_PCA=with_PCA
-        self.components=n_components
+    
+    #used to estimate the skill of the algorithms (accuracy)
+    def cross_val(self,X,y):
+        scores = cross_val_score(self.model, X,y, cv=10)
+        return scores.mean(), scores.std()
+
+    #trains the model with all the avaiable data
+    def train_model(self,X,y): 
+        self.model.fit(X,y)
+
+    #predicts the probability that a network transmission is NOT an intrusion
+    def predict_proba_normal(self,x):
+        aux = self.model.predict_proba(x) #returns firs probability of intrusion and then normal in a row
+        aux = np.asarray(aux)
+        prob_normal = aux.transpose()[1]
+        return prob_normal
+
+    def predict_proba_intrusion(self,x):
+        aux = self.model.predict_proba(x) #returns firs probability of intrusion and then normal in a row
+        aux = np.asarray(aux)
+        prob_intrusion = aux.transpose()[0]
+        return prob_intrusion
+
 
 #Logistic regression
 class LOGREG(DATA_MINER):
 
-    def __init__(self,X,y,x_train,x_test,y_train,y_test,with_PCA=False,n_components=0):
-        super().__init__(X,y,x_train,x_test,y_train,y_test,with_PCA,n_components)
-
-    def train_model(self): 
-        if self.with_PCA:
-            #Perform PCA and extract the first int(components) principal components
-            self.pca = PCA(n_components=self.components)
-            self.pca.fit(self.X)
-            #Apply dimensional reduction to x_train and x_test
-            self.x_train=self.pca.transform(self.x_train)
-            self.x_test=self.pca.transform(self.x_test)
-
+    def __init__(self):
+        super().__init__()
         self.model=LogisticRegression(random_state=0,max_iter=3000)
-        self.model.fit(self.x_train,self.y_train)
 
+class KNN(DATA_MINER):  
 
+    #TODO: optimally choose K
+    def __init__(self,n_neighbors_=5):
+        super().__init__()
+        self.n_neighbors_=n_neighbors_
+        self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
+
+'''
 
 #Class for holding train and test data
 class DATA_HOLDER():
@@ -204,3 +212,5 @@ class KNN(CLASSIFIER):
 
         self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
         self.model.fit(self.x_train,self.y_train)
+
+'''

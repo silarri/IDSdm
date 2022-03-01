@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 #Comms: Class with useful functions to load and process the network data in .csv format
 #PRE: The directory "data_directory" should have two subdectories "train" and "test" with the training and testing data grouped in a single .csv file respectively. The testing data is NOT Labeled
@@ -14,9 +15,9 @@ class DATA_HANDLER:
     def __init__(self,data_directory):
         self.data_dir=data_directory            #Directory with the data-set to be used
 
-    def load_data(self):
-
-        print ("LOADING DATASET...")
+    def load_data(self,verbose=True):
+        
+        if verbose: print ("LOADING DATASET...")
         #Check for correct data directory structure
 
         train_dir = os.path.join(self.data_dir,"train")
@@ -27,11 +28,22 @@ class DATA_HANDLER:
         df_train = pd.read_csv(str(train_dir)+"/"+os.listdir(train_dir)[0]) 
         df_test = pd.read_csv(str(test_dir)+"/"+os.listdir(test_dir)[0]) #Not labeled
 
-        self.x_train, self.y_train, self.x_unlabeled = self.__preprocess_data(df_train,df_test)
+        self.X, self.y , self.x_unlabeled = self.__preprocess_data(df_train,df_test)
 
-        print ("LOADING DONE: " + str(len(self.x_train))+ " records avaiable for training")
+
+        if verbose: print ("LOADING DONE: " + str(len(self.X))+ " records avaiable for training")
+        #if verbose:
+        #    print("X:", self.X.shape)
+        #    print("y:", self.y.shape)
         
         return True
+
+    def get_train_data(self):
+        return self.X, self.y
+
+    def get_test_data(self):
+        return self.x_unlabeled
+    
 
     #Preprocess data to make it suitable for data mining
     def __preprocess_data(self,df_train,df_test):
