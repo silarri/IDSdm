@@ -7,6 +7,7 @@ class intrusion_detector():
     def __init__(self,data_handler,miners,threshold):
         self.threshold=threshold        #Confidence threshold
         self.miners = []                #will hold the trained models
+        self.data_handler=data_handler
 
         for algo in miners:
             if algo == "LOGREG":
@@ -35,8 +36,11 @@ class intrusion_detector():
 
         probs = adjust_all_predictions(probs)
 
-        compression_opts = dict(method='zip', archive_name='intrusions.csv')  
-        entry.iloc[probs].to_csv('../data/intrusions.zip', index=False, compression=compression_opts) 
+        #TODO: change this code to the commented line:
+
+        aux = self.data_handler.original_test.iloc[0:len(probs)]
+        aux.iloc[probs].to_csv('../data/intrusions.csv', index=False) 
+        #self.data_handler.original_test.iloc[probs].to_csv('../data/intrusions.csv', index=False) 
 
         
 

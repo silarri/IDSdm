@@ -27,9 +27,9 @@ class DATA_HANDLER:
         
         df_train = pd.read_csv(str(train_dir)+"/"+os.listdir(train_dir)[0]) 
         df_test = pd.read_csv(str(test_dir)+"/"+os.listdir(test_dir)[0]) #Not labeled
-
+        
+        self.original_test=df_test      #will be used to return the data of the fraudulent transactions
         self.X, self.y , self.x_unlabeled = self.__preprocess_data(df_train,df_test)
-
 
         if verbose: print ("LOADING DONE: " + str(len(self.X))+ " records avaiable for training")
         #if verbose:
@@ -61,16 +61,29 @@ class DATA_HANDLER:
         qualitative_columns=list(df_test.select_dtypes(include=['object']).columns)
         df_test = pd.get_dummies(df_test,columns = qualitative_columns , drop_first=True)
 
+        #Unlabeled rest data
         x_test = df_test
-
-        #normalization 
-        x  = (x_train-np.min(x_train))/(np.max(x_train)-np.min(x_train)).values
-        x_ = (x_test-np.min(x_test))/(np.max(x_test)-np.min(x_test)).values
-        #drop NAN columns
-        x.dropna( axis = 1, inplace=True)
-        x_.dropna( axis = 1, inplace=True)
         
-        return x,y_train,x_
+        #normalization 
+        x_train  = (x_train-np.min(x_train))/(np.max(x_train)-np.min(x_train)).values
+        x_test = (x_test-np.min(x_test))/(np.max(x_test)-np.min(x_test)).values
+
+        #drop NAN columns
+        x_train.dropna( axis = 1, inplace=True)
+        x_test.dropna( axis = 1, inplace=True)
+
+        #One hot Encoding can cause different number of features if the values in the data aren't the same.
+        #We need to add dummy columns to have the same features in the SAME ORDER
+
+        #TODO: find a better way... WE MAY NOT HAVE THE TEST DATA AVAIABLE
+
+        features=x_train.columns.union(x_test.columns)
+        x_train = x_train.reindex(columns=features, fill_value=0)
+        x_test = x_test.reindex(columns=features, fill_value=0)
+
+        print(x_test.shape,x_train.shape)
+        
+        return x_train,y_train,x_test
 
 
     #Checks for correct structure in the data directory 
