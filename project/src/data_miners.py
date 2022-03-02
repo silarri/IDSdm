@@ -1,6 +1,10 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
 
 
@@ -39,6 +43,7 @@ class LOGREG(DATA_MINER):
         super().__init__()
         self.model=LogisticRegression(random_state=0,max_iter=3000)
 
+#K nearest neighbour
 class KNN(DATA_MINER):  
 
     #TODO: optimally choose K
@@ -46,6 +51,18 @@ class KNN(DATA_MINER):
         super().__init__()
         self.n_neighbors_=n_neighbors_
         self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
+
+#Support Vector machine classifier
+class SVC_(DATA_MINER):
+    def __init__(self):
+        super().__init__()
+        self.model=make_pipeline(StandardScaler(), SVC(probability=True,gamma='auto'))
+
+class DTREE(DATA_MINER):
+    def __init__(self):
+        super().__init__()
+        self.model=DecisionTreeClassifier()
+
 
 '''
 

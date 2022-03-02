@@ -17,7 +17,7 @@ class DATA_HANDLER:
 
     def load_data(self,verbose=True):
         
-        if verbose: print ("LOADING DATASET...")
+        if verbose: print ("\nLOADING DATASET...",end='',flush=True)
         #Check for correct data directory structure
 
         train_dir = os.path.join(self.data_dir,"train")
@@ -31,7 +31,10 @@ class DATA_HANDLER:
         self.original_test=df_test      #will be used to return the data of the fraudulent transactions
         self.X, self.y , self.x_unlabeled = self.__preprocess_data(df_train,df_test)
 
-        if verbose: print ("LOADING DONE: " + str(len(self.X))+ " records avaiable for training")
+        if verbose: 
+            print ("DONE: ")
+            print ( str(len(self.X))+ " records avaiable for training")
+            print ( str(len(self.x_unlabeled))+ " records avaiable for testing")
         #if verbose:
         #    print("X:", self.X.shape)
         #    print("y:", self.y.shape)
@@ -81,7 +84,7 @@ class DATA_HANDLER:
         x_train = x_train.reindex(columns=features, fill_value=0)
         x_test = x_test.reindex(columns=features, fill_value=0)
 
-        print(x_test.shape,x_train.shape)
+        #print(x_test.shape,x_train.shape)
         
         return x_train,y_train,x_test
 
@@ -90,17 +93,17 @@ class DATA_HANDLER:
     def __check_dir(self,train_dir,test_dir):
         
         if not os.path.exists(train_dir):
-            print ("Unable to find training data, aborting.")
+            print ("\nUnable to find training data, aborting.")
             return False
         elif len(os.listdir(train_dir)) != 1 or not os.listdir(train_dir)[0].endswith('.csv'):
-            print ("The training directory should contain one and only one \'.csv\' file.")
+            print ("\nThe training directory should contain one and only one \'.csv\' file.")
             return False
 
         if not os.path.exists(test_dir):
-            print ("Unable to find testing data, aborting.")
+            print ("\nUnable to find testing data, aborting.")
             return False
         elif len(os.listdir(test_dir)) != 1 or not os.listdir(test_dir)[0].endswith('.csv'):
-            print ("The testing directory should contain one and only one \'.csv\' file.")
+            print ("\nThe testing directory should contain one and only one \'.csv\' file.")
             return False
         
         return True

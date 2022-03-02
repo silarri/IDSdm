@@ -1,6 +1,5 @@
 from data_handler import DATA_HANDLER
-from data_miners import LOGREG
-from data_miners import KNN
+from data_miners import LOGREG,KNN,SVC_,DTREE
 
 
 ####################################### LOAD AND PREPROCESS THE DATASET #####################
@@ -22,6 +21,15 @@ knn=KNN()
 mean,std=knn.cross_val(*data_handler.get_train_data())
 print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
 
+#print("SVC:",end='\t\t\t',flush=True)
+#SVC=SVC_()
+#mean,std=SVC.cross_val(*data_handler.get_train_data())
+#print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
+
+print("DTREE:",end='\t\t\t',flush=True)
+dtree=DTREE()
+mean,std=dtree.cross_val(*data_handler.get_train_data())
+print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
 
 #Apply K-fold-validation to see what scores we can expect
 #Work with thresholds of confidence
