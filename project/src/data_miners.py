@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -6,21 +7,58 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import RFE
+
 
 
 #Parent class for all data mining algorithms
 class DATA_MINER():
-    def __init__(self):
+    def __init__(self,pca_rfe=0,n_features=10):
         self.model=None
+        self.pca_rfe=pca_rfe
+        self.n_features=n_features
     
     #used to estimate the skill of the algorithms (accuracy)
+    #Use only in testbench
     def cross_val(self,X,y):
-        scores = cross_val_score(self.model, X,y, cv=10)
+        #Perform PCA or RFE:
+        match self.pca_rfe:
+            case 0:
+                scores = cross_val_score(self.model, X,y, cv=10)
+
+            case 1: #PCA
+                pca = PCA(n_components=self.n_features)
+                pca.fit(X)
+                X=pca.transform(X) #Apply dimensional reduction to x_train
+                scores = cross_val_score(self.model, X,y, cv=10)
+
+            case 2: #RFE
+                model = RFE(self.model, n_features_to_select=self.n_features,step=15,verbose=0)
+                scores = cross_val_score(model, X,y, cv=10)
+
         return scores.mean(), scores.std()
 
     #trains the model with all the avaiable data
     def train_model(self,X,y): 
-        self.model.fit(X,y)
+        #Perform PCA or RFE:
+        match self.pca_rfe:
+            case 0: #nothing special is done
+                self.model.fit(X,y)
+            case 1: #PCA
+                pca = PCA(n_components=self.n_features)
+                pca.fit(X)
+                X=pca.transform(X) #Apply dimensional reduction to x_train
+                self.pca_model=pca
+                self.model.fit(X,y)
+            case 2: #RFE
+                rfe = RFE(self.model, n_features_to_select=self.n_features,step=15,verbose=0)
+                self.model = rfe.fit(X, y)
+
+        #print(x_train.shape,x_test.shape
+
+    def transform_data_with_pca(self,X):
+        return self.pca_model.transform(X)
 
     #predicts the probability that a network transmission is NOT an intrusion
     def predict_proba_normal(self,x):
@@ -39,28 +77,30 @@ class DATA_MINER():
 #Logistic regression
 class LOGREG(DATA_MINER):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
         self.model=LogisticRegression(random_state=0,max_iter=3000)
 
 #K nearest neighbour
 class KNN(DATA_MINER):  
 
     #TODO: optimally choose K
-    def __init__(self,n_neighbors_=5):
-        super().__init__()
+    def __init__(self,n_neighbors_=5,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
         self.n_neighbors_=n_neighbors_
+        if self.pca_rfe == 2: #RFE cannot be performed for KNN
+            self.pca_rfe = 1 
         self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
 
 #Support Vector machine classifier
 class SVC_(DATA_MINER):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
         self.model=make_pipeline(StandardScaler(), SVC(probability=True,gamma='auto'))
 
 class DTREE(DATA_MINER):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
         self.model=DecisionTreeClassifier()
 
 

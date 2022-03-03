@@ -16,7 +16,7 @@ class DATA_HANDLER:
         self.data_dir=data_directory            #Directory with the data-set to be used
 
     def load_data(self,verbose=True):
-        
+
         if verbose: print ("\nLOADING DATASET...",end='',flush=True)
         #Check for correct data directory structure
 
@@ -35,6 +35,7 @@ class DATA_HANDLER:
             print ("DONE: ")
             print ( str(len(self.X))+ " records avaiable for training")
             print ( str(len(self.x_unlabeled))+ " records avaiable for testing")
+            #print ("Using "+ str(self.X.shape[1])+" features for training and testing")
         #if verbose:
         #    print("X:", self.X.shape)
         #    print("y:", self.y.shape)
@@ -64,7 +65,7 @@ class DATA_HANDLER:
         qualitative_columns=list(df_test.select_dtypes(include=['object']).columns)
         df_test = pd.get_dummies(df_test,columns = qualitative_columns , drop_first=True)
 
-        #Unlabeled rest data
+        #Unlabeled test data
         x_test = df_test
         
         #normalization 
@@ -85,7 +86,7 @@ class DATA_HANDLER:
         x_test = x_test.reindex(columns=features, fill_value=0)
 
         #print(x_test.shape,x_train.shape)
-        
+
         return x_train,y_train,x_test
 
 
