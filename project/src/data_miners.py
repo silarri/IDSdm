@@ -2,14 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.metrics import precision_recall_fscore_support
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFE
-
 
 
 #Parent class for all data mining algorithms
@@ -18,26 +18,56 @@ class DATA_MINER():
         self.model=None
         self.pca_rfe=pca_rfe
         self.n_features=n_features
+        self.pretty_name = "Data-Miner"
+        self.full_name = "Data-Miner"
     
-    #used to estimate the skill of the algorithms (accuracy)
-    #Use only in testbench
-    def cross_val(self,X,y):
+    def K_fold_cross_val(self,X,y,splits,verbose=True):
+        
+        if verbose: print()
+        aux_model = self.model 
+        X = X.to_numpy()
+
         #Perform PCA or RFE:
         match self.pca_rfe:
-            case 0:
-                scores = cross_val_score(self.model, X,y, cv=10)
 
             case 1: #PCA
                 pca = PCA(n_components=self.n_features)
                 pca.fit(X)
-                X=pca.transform(X) #Apply dimensional reduction to x_train
-                scores = cross_val_score(self.model, X,y, cv=10)
+                X=pca.transform(X) #Apply dimensional reduction to input data
 
             case 2: #RFE
-                model = RFE(self.model, n_features_to_select=self.n_features,step=15,verbose=0)
-                scores = cross_val_score(model, X,y, cv=10)
+                aux_model = RFE(self.model, n_features_to_select=self.n_features,step=15,verbose=0)
 
-        return scores.mean(), scores.std()
+        #Perform K-fold cross validation and obtain metrics
+        metrics = {"Accuracy" : [], "Precision" : [], "Recall" : [], "Fscore" : []}
+
+        n_fold=0
+        kf = KFold(n_splits=splits)
+
+        if verbose: print(self.pretty_name+" :",end='',flush=True)
+
+        for train_index, test_index in kf.split(X):
+            if verbose: print("=",end='',flush=True)
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+
+            #Train model and predict (every time .fit is called the model "resets")
+            aux_model.fit(X_train,y_train)
+            y_pred = aux_model.predict(X_test) 
+
+            #Compute metrics
+            #'weighted': Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label)
+            p, r, f, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted') 
+            score = aux_model.score(X_test,y_test)
+
+            metrics["Accuracy"].append(score)
+            metrics["Precision"].append(p)
+            metrics["Recall"].append(r)
+            metrics["Fscore"].append(f)
+
+        if verbose: print(">")
+
+        return metrics
 
     #trains the model with all the avaiable data
     def train_model(self,X,y): 
@@ -80,6 +110,8 @@ class LOGREG(DATA_MINER):
     def __init__(self,pca_rfe=0,n_features=10):
         super().__init__(pca_rfe,n_features)
         self.model=LogisticRegression(random_state=0,max_iter=3000)
+        self.pretty_name = "Logistic Regression"
+        self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
 
 #K nearest neighbour
 class KNN(DATA_MINER):  
@@ -88,22 +120,44 @@ class KNN(DATA_MINER):
     def __init__(self,n_neighbors_=5,pca_rfe=0,n_features=10):
         super().__init__(pca_rfe,n_features)
         self.n_neighbors_=n_neighbors_
-        if self.pca_rfe == 2: #RFE cannot be performed for KNN
+        if self.pca_rfe == 2: #RFE cannot be performed for KNN (There's no feature importance)
             self.pca_rfe = 1 
         self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
+        self.pretty_name = "K Nearest Neighbour"
+        self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
 
-#Support Vector machine classifier
-class SVC_(DATA_MINER):
-    def __init__(self,pca_rfe=0,n_features=10):
-        super().__init__(pca_rfe,n_features)
-        self.model=make_pipeline(StandardScaler(), SVC(probability=True,gamma='auto'))
-
+#Decision Tree
 class DTREE(DATA_MINER):
+
     def __init__(self,pca_rfe=0,n_features=10):
         super().__init__(pca_rfe,n_features)
         self.model=DecisionTreeClassifier()
+        self.pretty_name = "Decision Tree"
+        self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
 
+#Gaussian Naive Bayes
+class GNB(DATA_MINER):
 
+    def __init__(self,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
+        if self.pca_rfe == 2: #RFE cannot be performed for GNB (There's no feature importance)
+            self.pca_rfe = 1 
+        self.model=GaussianNB()
+        self.pretty_name = "Gaussian Naive Bayes"
+        self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
+
+#Multilayer Perceptron clasifier
+class MLPC(DATA_MINER):
+
+    def __init__(self,pca_rfe=0,n_features=10):
+        super().__init__(pca_rfe,n_features)
+        if self.pca_rfe == 2: #RFE cannot be performed for MLP (There's no feature importance)
+            self.pca_rfe = 1 
+        # 3 hidden layers
+        self.model=MLPClassifier(random_state=0, max_iter=300, hidden_layer_sizes=(50,25,10,),verbose=False)
+        self.pretty_name = "Multi-Layer Perceptron Classifier"
+        self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
+        
 '''
 
 #Class for holding train and test data

@@ -1,7 +1,7 @@
 from intrusion_detector import *
 
 def print_welcome():
-    print ("Welcome to IDS-NET (Intrusion Detection System for Network comunications)\n")
+    print ("Welcome to IDS-NET (Intrusion Detection System for Comunication Network)\n")
     print ("Please indicate the relative path to the folder containing the training and testing data.")
     print ("It MUST follow the following structure:\n")
     print ("folder/")
@@ -37,7 +37,7 @@ if not data_handler.load_data(verbose=True):
     exit(1)
 
 #Ask for the algorithms the intrusion detector is going to use:
-algorithms = input("Insert a list separated by spaces of the algorithms you wish to use (LOGREG,KNN,DTREE): ")
+algorithms = input("Insert a list separated by spaces of the algorithms you wish to use (LOGREG,KNN,DTREE,GNB): ")
 algorithms = algorithms.split()
 if not algorithms:
     print_exit(error=2)
@@ -52,7 +52,7 @@ except ValueError:
     exit(1)
 
 #Ask the user if they want to use PCA or RFE
-pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NO)(RFE won't be performed with KNN):")
+pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NO)(RFE not avaiable with KNN & GNB):")
 if pca_rfe == "PCA":
     pca_rfe=1
 elif pca_rfe=="RFE":

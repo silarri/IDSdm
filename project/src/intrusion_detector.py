@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from data_handler import DATA_HANDLER
-from data_miners import LOGREG,KNN,DTREE
+from data_miners import LOGREG,KNN,DTREE,GNB
 
 class intrusion_detector():
 
@@ -10,7 +10,7 @@ class intrusion_detector():
         self.miners = []                #will hold the trained models
         self.data_handler=data_handler
         self.pca_rfe=pca_rfe
-        avaiable_models=["LOGREG","KNN","DTREE"]
+        avaiable_models=["LOGREG","KNN","DTREE","GNB"]
 
         for algo in miners:
             if algo not in avaiable_models:
@@ -20,7 +20,9 @@ class intrusion_detector():
             if algo == "KNN":
                 aux = KNN(pca_rfe=pca_rfe,n_features=n_features)  
             if algo == "DTREE":
-                aux = DTREE(pca_rfe,n_features)               
+                aux = DTREE(pca_rfe,n_features)      
+            if algo == "GNB":
+                aux = GNB(pca_rfe,n_features)            
             aux.train_model(*data_handler.get_train_data())
             self.miners.append(aux)
 
