@@ -266,6 +266,13 @@ else: #option 2 one vs one
     print("The file "+ os.path.join(path,file_name)+" has been created.")
 
 
+#TODO: Pasa pq algún split del Kfold no tiene ambas clases (normal y anomaly)
+#Solucionado haciendo shuffle pero no está asegurado!
+
+#Logistic Regression :==/home/arturo/.local/lib/python3.10/site-packages/sklearn/metrics/_classification.py:1318: UndefinedMetricWarning: Recall and F-score are ill-defined and being set to 0.0 in labels with no true samples. Use `zero_division` parameter to control this behavior.
+#  _warn_prf(average, modifier, msg_start, len(result))
+
+
 ######################################## LOAD AND PREPROCESS THE DATASET #####################
 #
 #pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NONE) (RFE won't be performed with KNN & #GNB):")

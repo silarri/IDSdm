@@ -85,7 +85,7 @@ class DATA_HANDLER:
         x_train = x_train.reindex(columns=features, fill_value=0)
         x_test = x_test.reindex(columns=features, fill_value=0)
 
-        #print(x_test.shape,x_train.shape)
+        #print(x_test.shape,y_train.shape,x_train.shape)
 
         return x_train,y_train,x_test
 

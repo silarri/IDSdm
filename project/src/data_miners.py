@@ -11,7 +11,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFE
 
-
+# TODO update pretty name...
 #Parent class for all data mining algorithms
 class DATA_MINER():
     def __init__(self,pca_rfe=0,n_features=10):
@@ -42,7 +42,7 @@ class DATA_MINER():
         metrics = {"Accuracy" : [], "Precision" : [], "Recall" : [], "Fscore" : []}
 
         n_fold=0
-        kf = KFold(n_splits=splits)
+        kf = KFold(shuffle=True,n_splits=splits)
 
         if verbose: print(self.pretty_name+" :",end='',flush=True)
 
