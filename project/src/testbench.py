@@ -1,8 +1,10 @@
 import numpy as np
 import os
 import csv
+import matplotlib.pyplot as plt
 from data_handler import DATA_HANDLER
 from data_miners import LOGREG,KNN,DTREE,GNB,MLPC
+from math import sqrt
 
 #Metrics that will be used across the TestBench: 
 #Accuracy(Exactitud):   The fraction of predictions our model got right.
@@ -28,6 +30,7 @@ def print_welcome():
 def print_exit(error=0):
     if error == 0:
         print("\nBYE!")
+        exit(0)
     elif error == 1:
         print("\nABORTING EXECUTION! Encountered a problem with the data directory!")
     elif error == 2:
@@ -38,6 +41,10 @@ def print_exit(error=0):
         print("\nABORTING EXECUTION! Number of features must be an integer")
     elif error == 5:
         print("\nABORTING EXECUTION! Unknown algorithm")
+    elif error == 6:
+        print("\nABORTING EXECUTION! Please respect the range syntax")
+
+    exit(1)
 
 ########## Functions to ask the user for inputs ########################################
 
@@ -45,11 +52,11 @@ def select_tb_option():
     print("Choose one of the following options:")
     print("Option 1: Compare algorithms amongst themselves with the same settings")
     print("Option 2: Compare the performance of one algorithm with different settings")
-    option = input("Please introduce the desired option (1,2):")
+    print("Option 3: Perform hyperparameter tuning")
+    option = input("Please introduce the desired option (1,2,3):")
 
-    if option != "1" and option != "2":
-        print_exit(error=4)
-        exit(1) 
+    if option not in ["1","2","3"]:
+        print_exit(error=3) 
     
     option = int(option)
 
@@ -72,20 +79,28 @@ def select_algos(option,file_name):
 
         if len(algos) < 2:
             print_exit(error=2)
-            exit(1)
-    else: #option 2
+
+    elif option == 2: #option 2
 
         algos= input("Insert ONE algorithm (LOGREG,KNN,DTREE,GNB,MLPC): ")
 
         if algos not in avaiable_models:
             print_exit(error=5)
-            exit(1)
+
         file_name = file_name + algos + "_"
-        
+    else: #option 3
+
+        algos= input("Insert ONE algorithm (KNN): ")
+
+        if algos not in avaiable_models:
+            print_exit(error=5)
+
+        file_name = ""
+
     return algos, file_name
 
 def select_pca_rfe(file_name):
-    pca_rfe=input("Select an option for feature selection: (PCA,RFE,NONE)\n(RFE is not avaiable with KNN, GNB & MLP):")
+    pca_rfe=input("Select an option for feature selection: (PCA,RFE,NONE)\n(RFE is not avaiable with KNN, GNB & MLPC):")
     if pca_rfe == "PCA":
         file_name = file_name + "PCA_"
         pca_rfe=1
@@ -105,13 +120,13 @@ def select_n_features(pca_rfe,file_name):
             n_features = int(n_features)
         except ValueError:
             print_exit(error=4)
-            exit(1)
+
         file_name = file_name + str(n_features)
     
     return n_features, file_name
 
 def select_k_folds(file_name):
-    folds = input("Insert the number of splits to perfomr K-fold (int >=2):")
+    folds = input("Insert the number of splits to perform K-fold (int >=2):")
     try:
         folds = int(folds)
     except ValueError:
@@ -120,6 +135,18 @@ def select_k_folds(file_name):
 
     file_name = file_name + "k" +str(folds)
     return folds, file_name
+
+def select_k_range():
+    range_ = input("Insert a range of values to try for K with this syntax (int): start stop step\n")
+    range_ = range_.split()
+    if len(range_) != 3: 
+        print_exit(error=5)
+    try:
+        range_ = [int(i) for i in range_]
+    except ValueError:
+        print_exit(error=5)
+
+    return range_
 
 
 ########## Finctions for all_vs_all testbenching #########################################
@@ -138,7 +165,9 @@ def all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,splits,verbose
         if algo == "LOGREG":
             aux = LOGREG(pca_rfe,n_features)
         if algo == "KNN":
-            aux = KNN(pca_rfe=pca_rfe,n_features=n_features)  
+            k_neigh = input("Please insert the number of neighbors to use in KNN")
+            k_neigh = int(k_neigh)
+            aux = KNN(n_neighbors_=k_neigh, pca_rfe=pca_rfe,n_features=n_features)  
         if algo == "DTREE":
             aux = DTREE(pca_rfe,n_features)      
         if algo == "GNB":
@@ -180,8 +209,10 @@ def one_vs_one_tb(data_handler,algo,n_features,file_name,splits,verbose=True):
         constructors.append(LOGREG(1,n_features))
         constructors.append(LOGREG(2,n_features))
     if algo == "KNN":
-        constructors.append(KNN(pca_rfe=0,n_features=n_features))
-        constructors.append(KNN(pca_rfe=1,n_features=n_features))
+        k_neigh = input("Please insert the number of neighbors to use in KNN")
+        k_neigh = int(k_neigh)
+        constructors.append(KNN(n_neighbors_=k_neigh,pca_rfe=0,n_features=n_features))
+        constructors.append(KNN(n_neighbors_=k_neigh,pca_rfe=1,n_features=n_features))
     if algo == "DTREE":
         constructors.append(DTREE(0,n_features))
         constructors.append(DTREE(1,n_features))
@@ -219,6 +250,20 @@ def one_vs_one_tb(data_handler,algo,n_features,file_name,splits,verbose=True):
         writer.writerow(header)
         writer.writerows(data)
 
+def hyperparameter_tuning(data_handler,algo):
+    if algo == "KNN":
+        folds,_ = select_k_folds("")
+        range_  = select_k_range()
+        ks,scores = KNN().tune_hyperparameter_k(*data_handler.get_train_data(),range_[0],range_[1],range_[2],splits=folds,verbose=True)
+        #plt.figure(figsize=(12,6))
+        plt.figure()
+        plt.plot(ks,scores, marker='o', color='r',)
+        plt.ylabel('accuracy score')
+        plt.xlabel('K neighbors')
+        plt.grid('on')
+        plt.title('KNN k tuning')
+        plt.show()
+        
 #############################################  MAIN   ########################################
 
 #print welcome message
@@ -252,7 +297,7 @@ if option == 1: #Ask the user for the common parameters
     all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,kfolds,verbose=True)
     print("The file "+ os.path.join(path,file_name)+" has been created.")
 
-else: #option 2 one vs one
+elif option == 2: #option 2 one vs one
     #Ask the user for the number of features to select
     n_features, _ = select_n_features(1,file_name)
 
@@ -264,6 +309,12 @@ else: #option 2 one vs one
     file_name = os.path.join(path,file_name)
     one_vs_one_tb(data_handler,algos,n_features,file_name,kfolds,verbose=True)
     print("The file "+ os.path.join(path,file_name)+" has been created.")
+
+else: #option 3
+    #Perform hyperparameter tuning
+    hyperparameter_tuning(data_handler,algos)
+
+print_exit()
 
 
 #TODO: Pasa pq algún split del Kfold no tiene ambas clases (normal y anomaly)

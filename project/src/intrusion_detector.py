@@ -10,7 +10,7 @@ class intrusion_detector():
         self.miners = []                #will hold the trained models
         self.data_handler=data_handler
         self.pca_rfe=pca_rfe
-        avaiable_models=["LOGREG","KNN","DTREE","GNB"]
+        avaiable_models=["LOGREG","KNN","DTREE","GNB","MLPC"]
 
         for algo in miners:
             if algo not in avaiable_models:
@@ -22,7 +22,9 @@ class intrusion_detector():
             if algo == "DTREE":
                 aux = DTREE(pca_rfe,n_features)      
             if algo == "GNB":
-                aux = GNB(pca_rfe,n_features)            
+                aux = GNB(pca_rfe,n_features)   
+            if algo == "MLPC":
+                aux = MLPC(pca_rfe,n_features)           
             aux.train_model(*data_handler.get_train_data())
             self.miners.append(aux)
 
@@ -32,7 +34,7 @@ class intrusion_detector():
 
             #TODO: Add more algos
 
-    def find_intrusions(self,folder): #Checks weather a network exchange is normal or fraudulent
+    def find_intrusions(self,folder,agregate): #Checks weather a network exchange is normal or fraudulent
 
         def adjust_all_predictions(predicted_probs):
             return [True if y >= self.threshold else False for y in predicted_probs] 
@@ -52,11 +54,18 @@ class intrusion_detector():
             probs.append(row)
 
         probs=np.asarray(probs)
-        probs = probs.mean(axis=0) #Compute the mean prob of intrusion using all models
-
-        probs = adjust_all_predictions(probs)
-
-        self.data_handler.original_test.iloc[probs].to_csv(os.path.join(folder,"intrusions.csv"), index=False) 
+        if agregate:
+            probs = probs.mean(axis=0) #Compute the mean prob of intrusion using all models
+            p = adjust_all_predictions(probs)
+            aux = self.data_handler.original_test
+            aux["confidence"]=probs
+            aux[p].to_csv(os.path.join(folder,"intrusions.csv"), index=False) 
+        else:
+            for prob,miner in zip(probs,self.miners):
+                p = adjust_all_predictions(prob)
+                aux = self.data_handler.original_test
+                aux["confidence"]=prob
+                aux[p].to_csv(os.path.join(folder,miner.pretty_name+"_intrusions.csv"), index=False) 
 
         
 

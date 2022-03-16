@@ -117,7 +117,7 @@ class LOGREG(DATA_MINER):
 class KNN(DATA_MINER):  
 
     #TODO: optimally choose K
-    def __init__(self,n_neighbors_=5,pca_rfe=0,n_features=10):
+    def __init__(self,n_neighbors_=3,pca_rfe=0,n_features=10):
         super().__init__(pca_rfe,n_features)
         self.n_neighbors_=n_neighbors_
         if self.pca_rfe == 2: #RFE cannot be performed for KNN (There's no feature importance)
@@ -125,6 +125,27 @@ class KNN(DATA_MINER):
         self.model=KNeighborsClassifier(n_neighbors=self.n_neighbors_)
         self.pretty_name = "K Nearest Neighbour"
         self.full_name = self.pretty_name +"_"+ str(pca_rfe) + "_"+str(n_features)
+    
+    def tune_hyperparameter_k(self,X,y,start,stop,step,splits,verbose=False):
+        ks = np.arange(start,stop,step).tolist()
+        all_scores = []
+        X = X.to_numpy()
+        kf = KFold(shuffle=True,n_splits=splits)
+        for train_index, test_index in kf.split(X):
+            if verbose: print(":",end='',flush=True)
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            scores=[]
+            for k in ks:
+                if verbose: print("=",end='',flush=True)
+                model = KNeighborsClassifier(n_neighbors=k)           
+                model.fit(X_train,y_train)
+                scores.append(model.score(X_test,y_test))
+            all_scores.append(scores)
+            if verbose: print(">")
+        all_scores = np.asarray(all_scores)
+        all_scores = all_scores.mean(axis=0)
+        return ks,all_scores
 
 #Decision Tree
 class DTREE(DATA_MINER):

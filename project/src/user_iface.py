@@ -37,7 +37,7 @@ if not data_handler.load_data(verbose=True):
     exit(1)
 
 #Ask for the algorithms the intrusion detector is going to use:
-algorithms = input("Insert a list separated by spaces of the algorithms you wish to use (LOGREG,KNN,DTREE,GNB): ")
+algorithms = input("Insert a list separated by spaces of the algorithms you wish to use (LOGREG,KNN,DTREE,GNB,MLPC): ")
 algorithms = algorithms.split()
 if not algorithms:
     print_exit(error=2)
@@ -52,7 +52,7 @@ except ValueError:
     exit(1)
 
 #Ask the user if they want to use PCA or RFE
-pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NO)(RFE not avaiable with KNN & GNB):")
+pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NO)(RFE not avaiable with KNN,GNB & MLPC):")
 if pca_rfe == "PCA":
     pca_rfe=1
 elif pca_rfe=="RFE":
@@ -80,9 +80,16 @@ except RuntimeError:
 
 #TRAIN the system and PREDICT for the test data
 
+#Ask the user if they want to agreagate the results
+agregate=input("Do you want to agregate the results of the models?(Y/N)")
+if agregate == "Y":
+    agregate=True
+else:agregate = False
+
+
 print("Please WAIT for the results")
-intrusion_detection_system.find_intrusions(path)
-print("The file "+ os.path.join(path,"intrusions.csv")+" has been created.")
+intrusion_detection_system.find_intrusions(path,agregate)
+print("A .csv file has been created in the folder "+ path + " containing the detected intrusions")
 print("It contains the network conexions considered to be intrusions")
 print_exit()
 
