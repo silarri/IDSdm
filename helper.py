@@ -6,6 +6,7 @@ import pandas as pd
 
 #######main###########
 
-df_train = pd.read_csv("./project/data/dataset2/train/train_data.csv")
-df_train.loc[df_train["class"] != "normal", "class"] = "anomaly"
-df_train.to_csv("./project/data/dataset2/train/train_data2.csv", index=False) 
+df_train = pd.read_csv("/home/arturo/Uni/4º/TFG/Tuesday-WorkingHours.pcap_ISCX.csv")
+df_train.loc[df_train["class"] != "BENIGN", "class"] = "1" #1 MEANS INTRUSSION
+df_train.loc[df_train["class"] == "BENIGN", "class"] = "0" #0 MEANS NORMAL
+df_train.to_csv("/home/arturo/Uni/4º/TFG/SSH_FTP_ISCX.csv", index=False) 
