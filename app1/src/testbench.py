@@ -165,7 +165,7 @@ def all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,splits,verbose
         if algo == "LOGREG":
             aux = LOGREG(pca_rfe,n_features)
         if algo == "KNN":
-            k_neigh = input("Please insert the number of neighbors to use in KNN")
+            k_neigh = input("Please insert the number of neighbors to use in KNN: ")
             k_neigh = int(k_neigh)
             aux = KNN(n_neighbors_=k_neigh, pca_rfe=pca_rfe,n_features=n_features)  
         if algo == "DTREE":
