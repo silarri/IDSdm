@@ -81,15 +81,17 @@ model.train_model(*data_handler.return_data()) #PERFORM REDUCTION?? No need real
 while(1):
 
 #Perform sniffing:
-
-    with open(os.devnull, 'w') as fp:
-       proc = subprocess.Popen(['sudo','cicflowmeter','-i',INTERFACE,'-c',OUTPUT_FILE],stdout=fp,preexec_fn=os.setsid)
-
-    print("SINIFFING")
-    time.sleep(SNIFFING_WINDOW) # <-- There's no time.wait, but time.sleep.
-    os.killpg(os.getpgid(proc.pid), signal.SIGINT)
-    proc.wait() #Wait for sniffing to stop in an orderly fashion
-    print("SINIFFING Done")
+    try:
+        print("SINIFFING")
+        with open(os.devnull, 'w') as fp:
+            proc = subprocess.Popen(['sudo','cicflowmeter','-i',INTERFACE,'-c',OUTPUT_FILE],stdout=fp,start_new_session=True)
+            print("Waiting")
+            proc.wait(timeout=SNIFFING_WINDOW)  #We will wait here for ciclowmeter some seconds == time.sleep()
+    except subprocess.TimeoutExpired:
+        print("SINIFFING Done")
+        os.killpg(os.getpgid(proc.pid), signal.SIGINT)
+        proc.wait() #We have to wait for it to actually stop
+    
 
 #Read sniffed data and predict
     if not os.path.exists(OUTPUT_FILE) or os.stat(OUTPUT_FILE).st_size == 0: #file doesnt exist or is empty
