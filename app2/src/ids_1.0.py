@@ -56,9 +56,9 @@ class DATA_MINER():
     def train_model(self,X,y): 
         self.model.fit(X,y)
 
-    #predicts the probability that a network transmission IS an intrusion
+    #predicts the probability that a network transmission IS an intrusion 1=>normal 0=> intrusion
     def predict_proba_intrusion(self,x):
-        aux = self.model.predict_proba(x) #returns firs probability of intrusion and then normal in a row
+        aux = self.model.predict_proba(x) #returns first probability of intrusion and then normal in a row
         aux = np.asarray(aux)
         prob_intrusion = aux.transpose()[0]
         return prob_intrusion
@@ -81,17 +81,12 @@ model.train_model(*data_handler.return_data()) #PERFORM REDUCTION?? No need real
 while(1):
 
 #Perform sniffing:
-    try:
-        print("SINIFFING")
-        with open(os.devnull, 'w') as fp:
-            proc = subprocess.Popen(['sudo','cicflowmeter','-i',INTERFACE,'-c',OUTPUT_FILE],stdout=fp,start_new_session=True)
-            print("Waiting")
-            proc.wait(timeout=SNIFFING_WINDOW)  #We will wait here for ciclowmeter some seconds == time.sleep()
-    except subprocess.TimeoutExpired:
-        print("SINIFFING Done")
-        os.killpg(os.getpgid(proc.pid), signal.SIGINT)
-        proc.wait() #We have to wait for it to actually stop
     
+    print("SINIFFING")
+    with open(os.devnull, 'w') as fp:
+        proc = subprocess.Popen(['sudo','cicflowmeter','-i',INTERFACE,'-c',OUTPUT_FILE],stdout=fp,start_new_session=True)
+        print("Waiting")
+        proc.wait()  #Cicflow is supposed to stop after 30 seconds
 
 #Read sniffed data and predict
     if not os.path.exists(OUTPUT_FILE) or os.stat(OUTPUT_FILE).st_size == 0: #file doesnt exist or is empty
@@ -99,6 +94,10 @@ while(1):
         continue
     original = pd.read_csv(OUTPUT_FILE)
     sniffed_data = original[data_handler.column_names] #Select the desired columns
+    #normalization (min-max scaling) 
+    sniffed_data  = (sniffed_data-sniffed_data.min())/(sniffed_data.max()-sniffed_data.min())
+    #drop NAN columns
+    sniffed_data.dropna( axis = 1, inplace=True)
     probs = model.predict_proba_intrusion(sniffed_data)
     predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
     print(predictions)
@@ -106,7 +105,7 @@ while(1):
     #Intrusion?
     if True in predictions: #Detected an intrusion: Save to file and email root
         original["confidence"]=probs #Add confidence of prediction
-        original[predictions].to_csv(FOUND_INTRUSIONS_FILE, mode='a', header=not os.path.exists(FOUND_INTRUSIONS_FILE))
+        original[predictions].to_csv(FOUND_INTRUSIONS_FILE, mode='a',index=False, header=not os.path.exists(FOUND_INTRUSIONS_FILE))
         N_intrusions=str(len(original[predictions]))
         cmd = "echo \""+N_intrusions+" possible malicious connections detected.\nStored in the file "+FOUND_INTRUSIONS_FILE+".Please take the appropiate actions.\" | mail -s \"IDS ALERT\" root"
         os.system(cmd)
