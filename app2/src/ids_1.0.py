@@ -95,9 +95,6 @@ while(1):
     original = pd.read_csv(OUTPUT_FILE)
     sniffed_data = original[data_handler.column_names] #Select the desired columns
     #normalization (min-max scaling) 
-    sniffed_data  = (sniffed_data-sniffed_data.min())/(sniffed_data.max()-sniffed_data.min())
-    #drop NAN columns
-    sniffed_data.dropna( axis = 1, inplace=True)
     probs = model.predict_proba_intrusion(sniffed_data)
     predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
     print(predictions)
