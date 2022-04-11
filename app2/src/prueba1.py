@@ -13,6 +13,8 @@ x_train  = (x_train-np.min(x_train))/(np.max(x_train)-np.min(x_train)).values
 x_train.dropna( axis = 1, inplace=True)
 cols = x_train.columns
 
+
+
 model = DTREE(0,0)  
 metrics = model.K_fold_cross_val(x_train,y_train,10,True)
 
