@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import subprocess
 import signal
@@ -8,13 +9,15 @@ from sklearn.tree import DecisionTreeClassifier
 
 ########### GLOBAL CONTROL VARIABLES ###########
 
-SNIFFING_WINDOW = 45 #Seconds
 INTERFACE = "enp1s0" #interface used for sniffing
 OUTPUT_FILE = "/tmp/flows.csv"  #File to dump the sniffed network traffic
+SIM_INPUT_FILE = "/etc/ids/SSH_FTP_ISCX_test.csv" #File used to debug the service bypassing network sniffing
 CMD = "sudo cicflowmeter -i " + INTERFACE + " -c " + OUTPUT_FILE
-TRAIN_DATA_FILE = "./SSH_FTP_ISCX.csv"
+TRAIN_DATA_FILE = "/etc/ids/SSH_FTP_ISCX.csv"
 CONFIDENCE_THRESHOLD = 0.9 # 90%
-FOUND_INTRUSIONS_FILE = "/home/ids_intrusions.csv"
+FOUND_INTRUSIONS_FILE = "/etc/ids/ids_intrusions.csv"
+MODE = 1 if len(sys.argv)<=1 else 0 #Default working mode is SERVICE. 0 == DEBUG MODE
+
 
 ########## DATA HANDLING CLASS ############
 
@@ -78,26 +81,43 @@ if not data_handler.load_data():
 model = DTREE()
 model.train_model(*data_handler.return_data()) #PERFORM REDUCTION?? No need really
 
+if MODE == 0: #DEBUG MODE:
+    simulated_input = pd.read_csv(SIM_INPUT_FILE)
+    simulated_input = simulated_input[data_handler.column_names]
+    i = 0
+    while i < len(simulated_input):
+        aux = simulated_input.iloc[i:i+300, :]
+        i = i + 300
+        #print(i)
+        probs = model.predict_proba_intrusion(aux)
+        predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
+
+        #Intrusion?
+        if True in predictions: #Detected an intrusion: Save to file and email root
+            print("Possible intrussions found")
+            print(aux[predictions])
+    exit(0)
+    
+        
+
 while(1):
 
-#Perform sniffing:
-    
-    print("SINIFFING")
+#Perform network analysis:
+    print("Analyzing network traffic for 60 seconds")
     with open(os.devnull, 'w') as fp:
         proc = subprocess.Popen(['sudo','cicflowmeter','-i',INTERFACE,'-c',OUTPUT_FILE],stdout=fp,start_new_session=True)
-        print("Waiting")
-        proc.wait()  #Cicflow is supposed to stop after 30 seconds
+        #print("Waiting")
+        proc.wait()  #Cicflow is supposed to stop after 60 seconds
 
 #Read sniffed data and predict
     if not os.path.exists(OUTPUT_FILE) or os.stat(OUTPUT_FILE).st_size == 0: #file doesnt exist or is empty
-        print("empty file")
+        #print("empty file")
         continue
     original = pd.read_csv(OUTPUT_FILE)
     sniffed_data = original[data_handler.column_names] #Select the desired columns
-    #normalization (min-max scaling) 
     probs = model.predict_proba_intrusion(sniffed_data)
     predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
-    print(predictions)
+    #print(predictions)
 
     #Intrusion?
     if True in predictions: #Detected an intrusion: Save to file and email root
