@@ -23,10 +23,10 @@ df_train = pd.read_csv("/home/arturo/Uni/4º/TFG/TFG/app2/data/train/SSH_FTP_ISC
 #y = df_train.iloc[:,-1].values #Extract labels: 1 => normal, 0 => ANOMALY
 #X = df_train.iloc[: , :-1]     #Remove labels column
 
-train, test = train_test_split(df_train, test_size=0.1)
-train.to_csv("/home/arturo/Uni/4º/TFG/TFG/app2/data/train/SSH_FTP_ISCX_train.csv", index=False) 
-test=test.iloc[: , :-1]
-test.to_csv("/home/arturo/Uni/4º/TFG/TFG/app2/data/test/SSH_FTP_ISCX_test.csv", index=False) 
+train, test = train_test_split(df_train, test_size=0.2)
+train.to_csv("/home/arturo/Uni/4º/TFG/TFG/app1/data/dataset4/train/SSH_FTP_ISCX_train.csv", index=False) 
+test=test.iloc[: , :-1] #PUEDO NO ELIMINARLAS Y USARLAS COMO SOLUCION!!!
+test.to_csv("/home/arturo/Uni/4º/TFG/TFG/app1/data/dataset4/test/SSH_FTP_ISCX_test.csv", index=False) 
 
 #details = test.apply(lambda x : True if x['class'] == 0 else False, axis = 1)
 #

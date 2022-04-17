@@ -1,20 +1,27 @@
-#Library to load network data
+"""
+Author: Arturo Calvera Tonin
+Date: June 2022
+Project: TFG - Data mining for intrusion detection in communication networks
+File: data_handler.py
+Comms: Library to load network data
+"""
 import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-#Comms: Class with useful functions to load and process the network data in .csv format
-#PRE: The directory "data_directory" should have two subdectories "train" and "test" with the training and testing data grouped in a single .csv file respectively. The testing data is NOT Labeled
+#Comms: Class with useful functions to load and process network data in .csv format
+#PRE: The directory "data_directory" should have two subdectories "train" and "test" with the training and testing data grouped into a single .csv file respectively. The testing data is NOT Labeled
 #POST:
-
-#TODO: Debería aceptar subdirectorios con más de un CSV?? Qué pasa con distintos formatos de datos??
+#Returns and object holding the preprocessed data with useful methods to handle such data
 
 class DATA_HANDLER:
 
     def __init__(self,data_directory):
         self.data_dir=data_directory            #Directory with the data-set to be used
 
+    #Loads and preprocesses the data for traininng and testing.
+    #Receives a verbose argument to print some stats about the data
     def load_data(self,verbose=True):
 
         if verbose: print ("\nLOADING DATASET...",end='',flush=True)
@@ -35,21 +42,19 @@ class DATA_HANDLER:
             print ("DONE: ")
             print ( str(len(self.X))+ " records avaiable for training")
             print ( str(len(self.x_unlabeled))+ " records avaiable for testing")
-            #print ("Using "+ str(self.X.shape[1])+" features for training and testing")
-        #if verbose:
-        #    print("X:", self.X.shape)
-        #    print("y:", self.y.shape)
-        
+      
         return True
-
+    
+    #Returns the training data
     def get_train_data(self):
         return self.X, self.y
 
+    #Returns the testing data
     def get_test_data(self):
         return self.x_unlabeled
     
 
-    #Preprocess data to make it suitable for data mining
+    #Preprocesses data to make it suitable for data mining
     def __preprocess_data(self,df_train,df_test):
 
         #Label decoding: Change qualitative columns to quantitative columns
@@ -78,8 +83,6 @@ class DATA_HANDLER:
 
         #One hot Encoding can cause different number of features if the values in the data aren't the same.
         #We need to add dummy columns to have the same features in the SAME ORDER
-
-        #TODO: find a better way... WE MAY NOT HAVE THE TEST DATA AVAIABLE
 
         features=x_train.columns.union(x_test.columns)
         x_train = x_train.reindex(columns=features, fill_value=0)

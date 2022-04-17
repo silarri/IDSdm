@@ -1,10 +1,21 @@
+"""
+Author: Arturo Calvera Tonin
+Date: June 2022
+Project: TFG - Data mining for intrusion detection in communication networks
+File: intrusion_detector.py
+Comms: Library with an intrusion detection class based on machine learning
+"""
 import numpy as np
 import os
 from data_handler import DATA_HANDLER
 from data_miners import LOGREG,KNN,DTREE,GNB
 
+#Comms: Class that performs predictions on data to detect abnormal network traffic
+#Uses the data_handler.py and data_miners.py library
 class intrusion_detector():
 
+    #data_handler: Receives a DATA_HANDLER object with the data already loaded
+    #miners: Receives a strings list with the algorithms to use in the predictions
     def __init__(self,data_handler,miners,threshold,pca_rfe,n_features):
         self.threshold=threshold        #Confidence threshold
         self.miners = []                #will hold the trained models
@@ -32,9 +43,9 @@ class intrusion_detector():
             #None of the algorithms introduced is avaiable
             raise RuntimeError("None of the algorithms introduced is avaiable")
 
-            #TODO: Add more algos
-
-    def find_intrusions(self,folder,agregate): #Checks weather a network exchange is normal or fraudulent
+    #Checks weather a network exchange is normal or fraudulent
+    #agregate: Boolean to agregate or not the predictions of the different algorithms
+    def find_intrusions(self,folder,agregate): 
 
         def adjust_all_predictions(predicted_probs):
             return [True if y >= self.threshold else False for y in predicted_probs] 

@@ -1,3 +1,10 @@
+"""
+Author: Arturo Calvera Tonin
+Date: June 2022
+Project: TFG - Data mining for intrusion detection in communication networks
+File: testbench.py
+Comms: Testbench to test the performance of data mining algorithms with different data-sets
+"""
 import numpy as np
 import os
 import csv
@@ -315,66 +322,3 @@ else: #option 3
     hyperparameter_tuning(data_handler,algos)
 
 print_exit()
-
-
-#TODO: Pasa pq algún split del Kfold no tiene ambas clases (normal y anomaly)
-#Solucionado haciendo shuffle pero no está asegurado!
-
-#Logistic Regression :==/home/arturo/.local/lib/python3.10/site-packages/sklearn/metrics/_classification.py:1318: UndefinedMetricWarning: Recall and F-score are ill-defined and being set to 0.0 in labels with no true samples. Use `zero_division` parameter to control this behavior.
-#  _warn_prf(average, modifier, msg_start, len(result))
-
-
-######################################## LOAD AND PREPROCESS THE DATASET #####################
-#
-#pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NONE) (RFE won't be performed with KNN & #GNB):")
-#if pca_rfe == "PCA":
-#    pca_rfe=1
-#elif pca_rfe=="RFE":
-#    pca_rfe=2
-#else: #NONE
-#    pca_rfe=0
-#
-#n_features = 0 #Default value, will use all features
-#if pca_rfe == 1 or pca_rfe == 2:
-#    n_features = input("Insert the number of features to be used (int):")
-#    n_features = int(n_features)
-#
-#
-#data_handler = DATA_HANDLER("../data")
-#data_handler.load_data(verbose=True)
-#
-#######################################  TRAIN AND TEST DIFFERENT CLASSIFIERS WITH cross-val ###############
-#
-#print("\nCHECKING with KFOLD CROSS VALIDATION (k=10) the expected capabilities of different learners")
-#
-##print("LOGISTIC REGRESSION:",end='\t',flush=True)
-##logreg=LOGREG(pca_rfe,n_features)
-##mean,std=logreg.cross_val(*data_handler.get_train_data())
-##print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
-##
-##print("KNN:",end='\t\t\t',flush=True)
-##knn=KNN(pca_rfe=pca_rfe,n_features=n_features)
-##mean,std=knn.cross_val(*data_handler.get_train_data())
-##print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
-##
-##print("DTREE:",end='\t\t\t',flush=True)
-##dtree=DTREE(pca_rfe,n_features)
-##mean,std=dtree.cross_val(*data_handler.get_train_data())
-##print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
-##
-##print("GNB:",end='\t\t\t',flush=True)
-##gnb=GNB(pca_rfe,n_features)
-##mean,std=gnb.cross_val(*data_handler.get_train_data())
-##print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
-##
-#print("MLPC:",end='\t\t\t',flush=True)
-#mplc=MLPC(pca_rfe,n_features)
-#mean,std=mplc.cross_val(*data_handler.get_train_data())
-#print("%0.8f accuracy with a standard deviation of %0.8f" % (mean,std))
-#
-##Apply K-fold-validation to see what scores we can expect
-##Work with thresholds of confidence
-##Create a multi-model system that can detect intrussions combining results and traininv with all the data
-##Translate test data to train data after running it through the final system
-#
-#

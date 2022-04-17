@@ -1,3 +1,10 @@
+"""
+Author: Arturo Calvera Tonin
+Date: June 2022
+Project: TFG - Data mining for intrusion detection in communication networks
+File: user_iface.py
+Comms: Simple user interface to manage a simple command line network intrusion detection system
+"""
 from intrusion_detector import *
 
 def print_welcome():
@@ -93,16 +100,4 @@ print("A .csv file has been created in the folder "+ path + " containing the det
 print("It contains the network conexions considered to be intrusions")
 print_exit()
 
-#For simplicity
-#aux_x_test = data_handler.get_test_data()
-#aux_x_test = aux_x_test.iloc[0:20]
-#intrusion_detection_system.find_intrusions(aux_x_test)
 
-
-#
-
-#
-##Will use the test data provided in the data folder
-#intrusion_detection_system.find_intrusions(aux_x_test)
-#
-#

@@ -1,0 +1,13 @@
+[Unit]
+Description=Intrusion detection system
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /etc/ids/ids_1.0.py
+User=root
+Group=root
+
+[Install]
+Alias=ids-daemon
+WantedBy=multi-user.target

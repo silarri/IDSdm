@@ -1,3 +1,11 @@
+"""
+Author: Arturo Calvera Tonin
+Date: June 2022
+Project: TFG - Data mining for intrusion detection in communication networks
+File: ids_1.0.py
+Comms: Python file with the code for a linux daemon style intrusion detection system.
+Read the Readme.txt with the instructions to setup the daemon and the dependencies of the system
+"""
 import os
 import sys
 import time
@@ -6,6 +14,7 @@ import signal
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import precision_recall_fscore_support
 
 ########### GLOBAL CONTROL VARIABLES ###########
 
@@ -13,13 +22,13 @@ INTERFACE = "enp1s0" #interface used for sniffing
 OUTPUT_FILE = "/tmp/flows.csv"  #File to dump the sniffed network traffic
 SIM_INPUT_FILE = "/etc/ids/SSH_FTP_ISCX_test.csv" #File used to debug the service bypassing network sniffing
 CMD = "sudo cicflowmeter -i " + INTERFACE + " -c " + OUTPUT_FILE
-TRAIN_DATA_FILE = "/etc/ids/SSH_FTP_ISCX.csv"
+TRAIN_DATA_FILE = "/etc/ids/SSH_FTP_ISCX_train.csv"
 CONFIDENCE_THRESHOLD = 0.9 # 90%
 FOUND_INTRUSIONS_FILE = "/etc/ids/ids_intrusions.csv"
 MODE = 1 if len(sys.argv)<=1 else 0 #Default working mode is SERVICE. 0 == DEBUG MODE
 
 
-########## DATA HANDLING CLASS ############
+########## REDUCED DATA HANDLING CLASS ############
 
 class DATA_HANDLER:
 
@@ -48,16 +57,16 @@ class DATA_HANDLER:
     def return_data(self):
         return self.X, self.y
 
-########## DATA MINER CLASS ############
+########## REDUCED DATA MINER CLASS ############
 
 class DATA_MINER():
 
-    def __init__(self,pca_rfe=0,n_features=10):
+    def __init__(self):
         self.model=None
     
     #trains the model with all the avaiable data
     def train_model(self,X,y): 
-        self.model.fit(X,y)
+        self.model = self.model.fit(X,y)
 
     #predicts the probability that a network transmission IS an intrusion 1=>normal 0=> intrusion
     def predict_proba_intrusion(self,x):
@@ -72,33 +81,38 @@ class DTREE(DATA_MINER):
         super().__init__()
         self.model=DecisionTreeClassifier()
 
-#On startup train the prediction model with all the data
 
+############################## MAIN #########################################
+
+#On startup train the prediction model with all the data
 data_handler = DATA_HANDLER(TRAIN_DATA_FILE)
 if not data_handler.load_data():
     exit(1)
 
-model = DTREE()
-model.train_model(*data_handler.return_data()) #PERFORM REDUCTION?? No need really
+classifier = DTREE()
+classifier.train_model(*data_handler.return_data()) #PERFORM REDUCTION?? No need really
 
 if MODE == 0: #DEBUG MODE:
-    simulated_input = pd.read_csv(SIM_INPUT_FILE)
-    simulated_input = simulated_input[data_handler.column_names]
-    i = 0
-    while i < len(simulated_input):
-        aux = simulated_input.iloc[i:i+300, :]
-        i = i + 300
-        #print(i)
-        probs = model.predict_proba_intrusion(aux)
-        predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
 
-        #Intrusion?
-        if True in predictions: #Detected an intrusion: Save to file and email root
-            print("Possible intrussions found")
-            print(aux[predictions])
-    exit(0)
+    sim_input = pd.read_csv(SIM_INPUT_FILE)
+    y_real = sim_input.iloc[:,-1].values
+    sim_input = sim_input[data_handler.column_names]
+    #normalization (min-max scaling) 
+    sim_input  = (sim_input-sim_input.min())/(sim_input.max()-sim_input.min())
+    #drop NAN columns
+    sim_input.dropna( axis = 1, inplace=True)
+
+    probs = classifier.predict_proba_intrusion(sim_input)
+    predictions = [0 if y >= CONFIDENCE_THRESHOLD else 1 for y in probs] 
+    p, r, f, _ = precision_recall_fscore_support(y_real, predictions, average='weighted') 
+    score = classifier.model.score(sim_input,y_real)
     
-        
+    print("Accuracy: ", score)
+    print("Precision: ", p)
+    print("Recall: ", r)
+    print("Fscore: ", f)
+    exit(0)
+   
 
 while(1):
 
