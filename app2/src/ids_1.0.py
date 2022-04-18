@@ -96,11 +96,13 @@ if MODE == 0: #DEBUG MODE:
 
     sim_input = pd.read_csv(SIM_INPUT_FILE)
     y_real = sim_input.iloc[:,-1].values
-    sim_input = sim_input[data_handler.column_names]
+
+    sim_input = sim_input.reindex(columns=data_handler.column_names, fill_value=0)
     #normalization (min-max scaling) 
     sim_input  = (sim_input-sim_input.min())/(sim_input.max()-sim_input.min())
     #drop NAN columns
     sim_input.dropna( axis = 1, inplace=True)
+    sim_input = sim_input.reindex(columns=data_handler.column_names, fill_value=0) #Select the desired columns
 
     probs = classifier.predict_proba_intrusion(sim_input)
     predictions = [0 if y >= CONFIDENCE_THRESHOLD else 1 for y in probs] 
@@ -128,8 +130,15 @@ while(1):
         #print("empty file")
         continue
     original = pd.read_csv(OUTPUT_FILE)
-    sniffed_data = original[data_handler.column_names] #Select the desired columns
-    probs = model.predict_proba_intrusion(sniffed_data)
+
+    sniffed_data = original.reindex(columns=data_handler.column_names, fill_value=0)
+    #normalization (min-max scaling) 
+    sniffed_data  = (sniffed_data-sniffed_data.min())/(sniffed_data.max()-sniffed_data.min())
+    #drop NAN columns
+    sniffed_data.dropna( axis = 1, inplace=True)
+    sniffed_data = sniffed_data.reindex(columns=data_handler.column_names, fill_value=0) #Select the desired columns
+
+    probs = classifier.predict_proba_intrusion(sniffed_data)
     predictions = [True if y >= CONFIDENCE_THRESHOLD else False for y in probs] 
     #print(predictions)
 
