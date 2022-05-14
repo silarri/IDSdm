@@ -64,7 +64,7 @@ class DATA_HANDLER:
         df_train = pd.get_dummies(df_train,columns = qualitative_columns , drop_first=True)
 
         #We assumme the class is the last column (binary)
-        y_train = df_train.iloc[:,-1].values #Extract labels: 1 => normal, 0 => ANOMALY
+        y_train = df_train.iloc[:,-1].values #Extract labels: 1 => Intrusion, 0 => Normal
         x_train = df_train.iloc[: , :-1]     #Remove labels column
 
         qualitative_columns=list(df_test.select_dtypes(include=['object']).columns)

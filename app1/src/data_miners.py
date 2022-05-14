@@ -6,7 +6,7 @@ File: data_miners.py
 Comms: Library with data miners to perform machine learning on network data
 """
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -14,7 +14,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import KFold
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+#from sklearn.metrics import plot_confusion_matrix
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFE
 
@@ -66,8 +68,16 @@ class DATA_MINER():
 
             #Compute metrics
             #'weighted': Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label)
-            p, r, f, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted') 
-            score = aux_model.score(X_test,y_test)
+            #p, r, f, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted') 
+            tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+            p = tp / (tp + fp)
+            r = tp / (tp + fn)
+            f = 2 * (p*r / (p+r))
+            score = accuracy_score(y_test,y_pred)
+
+            #plot_confusion_matrix(aux_model,X_test,y_test)
+            #plt.show()
+            #print(score,p,r,f)
 
             metrics["Accuracy"].append(score)
             metrics["Precision"].append(p)
@@ -100,15 +110,15 @@ class DATA_MINER():
         return self.pca_model.transform(X)
 
     #predicts the probability that a network transmission is NOT an intrusion
-    #Class == 1 => Normal, Class == 0 => Abnormality
-    def predict_proba_normal(self,x):
-        aux = self.model.predict_proba(x) #returns firs probability of intrusion and then normal in a row
+    #Class == 1 => Intrusion, Class == 0 => Normal
+    def predict_proba_intrusion(self,x):
+        aux = self.model.predict_proba(x) #returns firs probability of normal and then intrusion in a row
         aux = np.asarray(aux)
         prob_normal = aux.transpose()[1]
         return prob_normal
 
-    def predict_proba_intrusion(self,x):
-        aux = self.model.predict_proba(x) #returns firs probability of intrusion and then normal in a row
+    def predict_proba_normal(self,x):
+        aux = self.model.predict_proba(x) #returns firs probability of normal and then intrusion in a row
         aux = np.asarray(aux)
         prob_intrusion = aux.transpose()[0]
         return prob_intrusion

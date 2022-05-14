@@ -14,7 +14,8 @@ import signal
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 
 ########### GLOBAL CONTROL VARIABLES ###########
 
@@ -39,7 +40,7 @@ class DATA_HANDLER:
         df_train = pd.read_csv(self.data_file)
 
         #We assumme the class is the last column (binary)
-        y_train = df_train.iloc[:,-1].values #Extract labels: 1 => normal, 0 => ANOMALY
+        y_train = df_train.iloc[:,-1].values #Extract labels: 1 => Intrusion, 0 => Normal
         x_train = df_train.iloc[: , :-1]     #Remove labels column
         
         #normalization (min-max scaling) 
@@ -68,11 +69,11 @@ class DATA_MINER():
     def train_model(self,X,y): 
         self.model = self.model.fit(X,y)
 
-    #predicts the probability that a network transmission IS an intrusion 1=>normal 0=> intrusion
+    #predicts the probability that a network transmission IS an intrusion 1=>Intrusion 0=> normal
     def predict_proba_intrusion(self,x):
-        aux = self.model.predict_proba(x) #returns first probability of intrusion and then normal in a row
+        aux = self.model.predict_proba(x) #returns first probability of normal and then intrusion in a row
         aux = np.asarray(aux)
-        prob_intrusion = aux.transpose()[0]
+        prob_intrusion = aux.transpose()[1]
         return prob_intrusion
 
 class DTREE(DATA_MINER):
@@ -106,8 +107,11 @@ if MODE == 0: #DEBUG MODE:
 
     probs = classifier.predict_proba_intrusion(sim_input)
     predictions = [0 if y >= CONFIDENCE_THRESHOLD else 1 for y in probs] 
-    p, r, f, _ = precision_recall_fscore_support(y_real, predictions, average='weighted') 
-    score = classifier.model.score(sim_input,y_real)
+    tn, fp, fn, tp = confusion_matrix(y_real, predictions).ravel()
+    p = tp / (tp + fp)
+    r = tp / (tp + fn)
+    f = 2 * (p*r / (p+r))
+    score = accuracy_score(y_real,predictions)
     
     print("Accuracy: ", score)
     print("Precision: ", p)
