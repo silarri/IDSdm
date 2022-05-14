@@ -106,7 +106,7 @@ if MODE == 0: #DEBUG MODE:
     sim_input = sim_input.reindex(columns=data_handler.column_names, fill_value=0) #Select the desired columns
 
     probs = classifier.predict_proba_intrusion(sim_input)
-    predictions = [0 if y >= CONFIDENCE_THRESHOLD else 1 for y in probs] 
+    predictions = [1 if y >= CONFIDENCE_THRESHOLD else 0 for y in probs] # 1 = intrusion
     tn, fp, fn, tp = confusion_matrix(y_real, predictions).ravel()
     p = tp / (tp + fp)
     r = tp / (tp + fn)
