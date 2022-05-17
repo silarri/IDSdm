@@ -47,10 +47,10 @@ class DATA_MINER():
                 X=pca.transform(X) #Apply dimensional reduction to input data
 
             case 2: #RFE
-                aux_model = RFE(self.model, n_features_to_select=self.n_features,step=15,verbose=0)
+                aux_model = RFE(self.model, n_features_to_select=self.n_features,step=5,verbose=0)
 
         #Perform K-fold cross validation and obtain metrics
-        metrics = {"Accuracy" : [], "Precision" : [], "Recall" : [], "Fscore" : []}
+        metrics = {"Accuracy" : [], "Precision" : [], "Recall" : [], "F1score" : []}
 
         n_fold=0
         kf = KFold(shuffle=True,n_splits=splits)
@@ -82,7 +82,7 @@ class DATA_MINER():
             metrics["Accuracy"].append(score)
             metrics["Precision"].append(p)
             metrics["Recall"].append(r)
-            metrics["Fscore"].append(f)
+            metrics["F1score"].append(f)
 
         if verbose: print(">")
 

@@ -59,10 +59,10 @@ def select_tb_option():
     print("Choose one of the following options:")
     print("Option 1: Compare algorithms amongst themselves with the same settings")
     print("Option 2: Compare the performance of one algorithm with different settings")
-    print("Option 3: Perform hyperparameter tuning")
-    option = input("Please introduce the desired option (1,2,3):")
+    #print("Option 3: Perform hyperparameter tuning")
+    option = input("Please introduce the desired option (1,2):")
 
-    if option not in ["1","2","3"]:
+    if option not in ["1","2"]:
         print_exit(error=3) 
     
     option = int(option)
@@ -87,7 +87,7 @@ def select_algos(option,file_name):
         if len(algos) < 2:
             print_exit(error=2)
 
-    elif option == 2: #option 2
+    else : #option 2
 
         algos= input("Insert ONE algorithm (LOGREG,KNN,DTREE,GNB,MLPC): ")
 
@@ -95,14 +95,14 @@ def select_algos(option,file_name):
             print_exit(error=5)
 
         file_name = file_name + algos + "_"
-    else: #option 3
-
-        algos= input("Insert ONE algorithm (KNN): ")
-
-        if algos not in avaiable_models:
-            print_exit(error=5)
-
-        file_name = ""
+    #else: #option 3
+    #
+    #    algos= input("Insert ONE algorithm (KNN): ")
+    #
+    #    if algos not in avaiable_models:
+    #        print_exit(error=5)
+    #
+    #    file_name = ""
 
     return algos, file_name
 
@@ -163,7 +163,7 @@ def print_results(metrics_dict,pretty_name):
     for key, value in metrics_dict.items():
         value = np.asarray(value)
         tab = ":\t"
-        if key=="Recall" or key =="Fscore": tab = ":\t\t"
+        if key=="Recall": tab = ":\t\t"
         print(key + tab + str(value.mean()))
 
 def all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,splits,verbose=True):
@@ -241,7 +241,7 @@ def one_vs_one_tb(data_handler,algo,n_features,file_name,splits,verbose=True):
             print_results(metric,name)
 
     #output results to csv file
-    header = ["Algorithm","Accuracy","Precision","Recall","Fscore"]
+    header = ["Algorithm","Accuracy","Precision","Recall","F1score"]
     data = []
 
     for metrics, name in all_metrics:
@@ -257,19 +257,19 @@ def one_vs_one_tb(data_handler,algo,n_features,file_name,splits,verbose=True):
         writer.writerow(header)
         writer.writerows(data)
 
-def hyperparameter_tuning(data_handler,algo):
-    if algo == "KNN":
-        folds,_ = select_k_folds("")
-        range_  = select_k_range()
-        ks,scores = KNN().tune_hyperparameter_k(*data_handler.get_train_data(),range_[0],range_[1],range_[2],splits=folds,verbose=True)
-        #plt.figure(figsize=(12,6))
-        plt.figure()
-        plt.plot(ks,scores, marker='o', color='r',)
-        plt.ylabel('accuracy score')
-        plt.xlabel('K neighbors')
-        plt.grid('on')
-        plt.title('KNN k tuning')
-        plt.show()
+#def hyperparameter_tuning(data_handler,algo):
+#    if algo == "KNN":
+#        folds,_ = select_k_folds("")
+#        range_  = select_k_range()
+#        ks,scores = KNN().tune_hyperparameter_k(*data_handler.get_train_data(),range_[0],range_[1],range_[2],splits=folds,verbose=True)
+#        #plt.figure(figsize=(12,6))
+#        plt.figure()
+#        plt.plot(ks,scores, marker='o', color='r',)
+#        plt.ylabel('accuracy score')
+#        plt.xlabel('K neighbors')
+#        plt.grid('on')
+#        plt.title('KNN k tuning')
+#        plt.show()
         
 #############################################  MAIN   ########################################
 
@@ -304,7 +304,7 @@ if option == 1: #Ask the user for the common parameters
     all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,kfolds,verbose=True)
     print("The file "+ os.path.join(path,file_name)+" has been created.")
 
-elif option == 2: #option 2 one vs one
+else: # option == 2: #option 2 one vs one
     #Ask the user for the number of features to select
     n_features, _ = select_n_features(1,file_name)
 
@@ -317,8 +317,8 @@ elif option == 2: #option 2 one vs one
     one_vs_one_tb(data_handler,algos,n_features,file_name,kfolds,verbose=True)
     print("The file "+ file_name+" has been created.")
 
-else: #option 3
-    #Perform hyperparameter tuning
-    hyperparameter_tuning(data_handler,algos)
+#else: #option 3
+#    #Perform hyperparameter tuning
+#    hyperparameter_tuning(data_handler,algos)
 
 print_exit()
