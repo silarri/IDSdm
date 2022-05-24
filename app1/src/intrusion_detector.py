@@ -8,7 +8,7 @@ Comms: Library with an intrusion detection class based on machine learning
 import numpy as np
 import os
 from data_handler import DATA_HANDLER
-from data_miners import LOGREG,KNN,DTREE,GNB
+from data_miners import LOGREG,KNN,DTREE,GNB,MLPC
 
 #Comms: Class that performs predictions on data to detect abnormal network traffic
 #Uses the data_handler.py and data_miners.py library
@@ -45,12 +45,54 @@ class intrusion_detector():
 
     #Checks weather a network exchange is normal or fraudulent
     #agregate: Boolean to agregate or not the predictions of the different algorithms
-    def find_intrusions(self,folder,agregate): 
+    def find_intrusions(self,folder,agregate):
+        if self.threshold == 0:
+            self.find_intrusions_without_threshold(folder,agregate)
+        else:
+            self.find_intrusions_with_threshold(folder,agregate)
 
-        def adjust_all_predictions(predicted_probs):
-            return [True if y >= self.threshold else False for y in predicted_probs] 
+    def find_intrusions_without_threshold(self,folder,agregate): 
+
+        def adjust_all_predictions(predicted_probs): #Majority vote
+            return [True if y >= 0.5 else False for y in predicted_probs] 
             #True => it's intrusion False=> normal
 
+        def adjust_all_predictions_2(predicted_probs): #Majority vote
+            return [True if y == 1 else False for y in predicted_probs] 
+            #True => it's intrusion False=> normal
+
+        entry = self.data_handler.get_test_data()
+        preds = []  #Becomes a matrix with the estimations for each model 
+                    #Each models predictions in a row, in each position probability for entry k
+
+        #IF PCA was performed, Xtest needs to be transformed accordingly
+        for miner in self.miners:
+            if miner.pca_rfe==1:
+                aux=miner.transform_data_with_pca(entry)
+                row = miner.predict(aux)
+            else:
+                row = miner.predict(entry)
+            preds.append(row)
+
+        preds=np.asarray(preds)
+        if agregate:    #Majority vote
+            preds = preds.mean(axis=0) #Compute the mean of the predictions
+            p = adjust_all_predictions(preds)
+            aux = self.data_handler.original_test
+            aux[p].to_csv(os.path.join(folder,"intrusions.csv"), index=False) 
+        else:
+            for pred,miner in zip(preds,self.miners):
+                p = adjust_all_predictions_2(pred)
+                aux = self.data_handler.original_test
+                aux[p].to_csv(os.path.join(folder,miner.pretty_name+"_intrusions.csv"), index=False) 
+
+        
+    def find_intrusions_with_threshold(self,folder,agregate): 
+
+        def adjust_all_predictions(predicted_probs):
+            return [True if y >=self.threshold else False for y in predicted_probs] 
+            #True => it's intrusion False=> normal
+            
         entry = self.data_handler.get_test_data()
         probs = []  #Becomes a matrix with the estimations for each model 
                     #Each models predictions in a row, in each position probability for entry k
@@ -77,7 +119,8 @@ class intrusion_detector():
                 aux = self.data_handler.original_test
                 aux["confidence"]=prob
                 aux[p].to_csv(os.path.join(folder,miner.pretty_name+"_intrusions.csv"), index=False) 
-
         
+        
+
 
 

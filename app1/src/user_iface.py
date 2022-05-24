@@ -8,7 +8,7 @@ Comms: Simple user interface to manage a simple command line network intrusion d
 from intrusion_detector import *
 
 def print_welcome():
-    print ("Welcome to IDS-NET (Intrusion Detection System for Comunication Network)\n")
+    print ("Welcome to IDS-NET (Intrusion Detection System for Communication Networks)\n")
     print ("Please indicate the relative path to the folder containing the training and testing data.")
     print ("It MUST follow the following structure:\n")
     print ("folder/")
@@ -51,12 +51,19 @@ if not algorithms:
     exit(1)
 
 #Ask for a conficence threshold:
-confidence_threshold = input("Insert a confidence threshold (eg 0.9): ")
-try:
-    confidence_threshold = float(confidence_threshold)
-except ValueError:
-    print_exit(error=3)
-    exit(1)
+confidence_threshold = input("Do you want to use a specific confidence threshold? (Y/N):")
+
+if confidence_threshold=="Y":
+    confidence_threshold = input("Insert a confidence threshold (eg 0.9): ")
+    try:
+        confidence_threshold = float(confidence_threshold)
+    except ValueError:
+        print_exit(error=3)
+        exit(1)
+else:
+    confidence_threshold = 0
+
+
 
 #Ask the user if they want to use PCA or RFE
 pca_rfe=input("Do you want to perfom PCA or RFE to the DATA?(PCA,RFE,NO)(RFE not avaiable with KNN,GNB & MLPC):")

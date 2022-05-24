@@ -123,6 +123,9 @@ class DATA_MINER():
         prob_intrusion = aux.transpose()[0]
         return prob_intrusion
     
+    def predict(self,x):
+        return self.model.predict(x)
+    
     def pretty_name_helper(self,pca_rfe,n_features):
         if pca_rfe == 1:
             return "PCA-"+str(n_features)
