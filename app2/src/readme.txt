@@ -1,4 +1,4 @@
-INSTRUCTIONS TO USE IDS_1.0 IN DAEMON MODE:
+INSTRUCTIONS TO USE IDS-NET-DAEMON IN DAEMON MODE:
 
 1 - As the root user create the directory /etc/ids
 
@@ -24,7 +24,7 @@ INSTRUCTIONS TO USE IDS_1.0 IN DAEMON MODE:
     Such traffic will be logged in the file /etc/ids/ids_intrusions.csv
 
 
-INSTRUCTIONS TO USE IDS_1.0 IN DEBUG MODE:
+INSTRUCTIONS TO USE IDS-NET-DAEMON IN DEBUG MODE:
 
 1 - As the root user create the directory /etc/ids
 

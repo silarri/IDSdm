@@ -23,14 +23,12 @@ from math import sqrt
 
 ########## Welcome and error functions #########################################
 def print_welcome():
-    print ("Welcome to the TESTBENCH for IDS-NET \n")
-    print ("Please indicate the relative path to the folder containing the training and testing data.")
+    print ("Welcome to the performance evaluation tool for the IDS-NET Project. \n")
+    print ("Please indicate the relative path to the folder containing the training data.")
     print ("It MUST follow the following structure:\n")
     print ("folder/")
     print ("|-train/")
     print ("|   |-train_data.csv")
-    print ("|-test/")
-    print ("|   |-test_data.csv")
     path = input(":")
     return path
 
@@ -278,7 +276,7 @@ path = print_welcome()
 
 #Load the provided data
 data_handler = DATA_HANDLER(path)
-if not data_handler.load_data(verbose=True):
+if not data_handler.load_data(verbose=True,test=False):
     print_exit(error=1)
     exit(1)
 

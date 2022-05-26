@@ -39,7 +39,7 @@ path = print_welcome()
 
 #Load the provided data
 data_handler = DATA_HANDLER(path)
-if not data_handler.load_data(verbose=True):
+if not data_handler.load_data(verbose=True,test=True):
     print_exit(error=1)
     exit(1)
 
