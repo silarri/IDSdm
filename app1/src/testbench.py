@@ -8,7 +8,7 @@ Comms: Testbench to test the performance of data mining algorithms with differen
 import numpy as np
 import os
 import csv
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from data_handler import DATA_HANDLER
 from data_miners import LOGREG,KNN,DTREE,GNB,MLPC
 from math import sqrt
