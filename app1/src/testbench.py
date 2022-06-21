@@ -300,7 +300,7 @@ if option == 1: #Ask the user for the common parameters
     file_name = file_name + "_TB.csv"
     file_name = os.path.join(path,file_name)
     all_vs_all_tb(data_handler,algos,pca_rfe,n_features,file_name,kfolds,verbose=True)
-    print("The file "+ os.path.join(path,file_name)+" has been created.")
+    print("The file "+ file_name+" has been created.")
 
 else: # option == 2: #option 2 one vs one
     #Ask the user for the number of features to select

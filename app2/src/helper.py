@@ -18,20 +18,24 @@ from sklearn.utils import shuffle
 #df_train.loc[df_train["class"] == 0, "class"] = "1" #1 MEANS NORMAL
 #df_train.to_csv("/home/arturo/Uni/4º/TFG/TFG/app2/data/train/SSH_FTP_ISCX.csv", index=False) 
 
-ORIGINAL = pd.read_csv("/home/arturo/Uni/4º/TFG/TFG/app2/data/train/SSH_FTP_ISCX_train.csv")
-POSITIVES=ORIGINAL.loc[ORIGINAL['class'] == 1]
-NEGATIVES=ORIGINAL.loc[ORIGINAL['class'] == 0]
-NEGATIVES=NEGATIVES.sample(n=87552,random_state=1)
+D3 = pd.read_csv("/home/arturo/Uni/4º/TFG/TFG/app1/data/dataset3/train/train_data2.csv")
+#D3.loc[D3["class"] != "0", "class"] = "1" #1 MEANS INTRUSSION
+#D3.to_csv("/home/arturo/Uni/4º/TFG/TFG/app1/data/dataset3/train/train_data2.csv", index=False)
+
+#D2 = pd.read_csv("/home/arturo/Uni/4º/TFG/TFG/app1/data/dataset2/train/train_data.csv")
+#D2.info(verbose=True)
+#POSITIVES=ORIGINAL.loc[ORIGINAL['class'] == 1]
+#NEGATIVES=ORIGINAL.loc[ORIGINAL['class'] == 0]
+#NEGATIVES=NEGATIVES.sample(n=87552,random_state=1)
+#
+#
+#alll=pd.concat([POSITIVES, NEGATIVES], ignore_index=True)
+#alll=shuffle(alll)
+#
+#alll.to_csv("./train.csv", index=False)
+#
 
 
-alll=pd.concat([POSITIVES, NEGATIVES], ignore_index=True)
-alll=shuffle(alll)
-
-alll.to_csv("./train.csv", index=False)
-
-
-
-print(len(POSITIVES),len(NEGATIVES),len(alll))
 #POSITIVES=ORIGINAL.sample(frac=0.5,weights='class', random_state=1)
 
 #ORIGINAL=ORIGINAL.groupby(['class']).apply(lambda x: x.sample(50000))

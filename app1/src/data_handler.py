@@ -46,6 +46,7 @@ class DATA_HANDLER:
             print ( str(len(self.X))+ " records avaiable for training")
             if test:
                 print ( str(len(self.x_unlabeled))+ " records avaiable for testing")
+            print ( str(len(self.X.columns))+ " features for each record")
       
         return True
     

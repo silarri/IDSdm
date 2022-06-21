@@ -13,7 +13,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 #from sklearn.metrics import plot_confusion_matrix
@@ -53,11 +53,11 @@ class DATA_MINER():
         metrics = {"Accuracy" : [], "Precision" : [], "Recall" : [], "F1score" : []}
 
         n_fold=0
-        kf = KFold(shuffle=True,n_splits=splits)
+        kf = StratifiedKFold(shuffle=True,n_splits=splits)
 
         if verbose: print(self.pretty_name+" :",end='',flush=True)
 
-        for train_index, test_index in kf.split(X):
+        for train_index, test_index in kf.split(X,y):
             if verbose: print("=",end='',flush=True)
             X_train, X_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
@@ -69,7 +69,7 @@ class DATA_MINER():
             #Compute metrics
             #'weighted': Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label)
             #p, r, f, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted') 
-            tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+            tn, fp, fn, tp = confusion_matrix(y_test, y_pred,labels=[0, 1]).ravel()
             p = tp / (tp + fp)
             r = tp / (tp + fn)
             f = 2 * (p*r / (p+r))
@@ -158,26 +158,26 @@ class KNN(DATA_MINER):
     #Tunes the number of neighbours to use (k), accros the range [start,stop] with step
     #Uses k fold cross validation with as many splits as indicated in splits
     #VERY TIME CONSUMING AND RESOURCE INTENSIVE
-    def tune_hyperparameter_k(self,X,y,start,stop,step,splits,verbose=False):
-        ks = np.arange(start,stop,step).tolist()
-        all_scores = []
-        X = X.to_numpy()
-        kf = KFold(shuffle=True,n_splits=splits)
-        for train_index, test_index in kf.split(X):
-            if verbose: print(":",end='',flush=True)
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-            scores=[]
-            for k in ks:
-                if verbose: print("=",end='',flush=True)
-                model = KNeighborsClassifier(n_neighbors=k)           
-                model.fit(X_train,y_train)
-                scores.append(model.score(X_test,y_test))
-            all_scores.append(scores)
-            if verbose: print(">")
-        all_scores = np.asarray(all_scores)
-        all_scores = all_scores.mean(axis=0)
-        return ks,all_scores
+    #def tune_hyperparameter_k(self,X,y,start,stop,step,splits,verbose=False):
+    #    ks = np.arange(start,stop,step).tolist()
+    #    all_scores = []
+    #    X = X.to_numpy()
+    #    kf = KFold(shuffle=True,n_splits=splits)
+    #    for train_index, test_index in kf.split(X):
+    #        if verbose: print(":",end='',flush=True)
+    #        X_train, X_test = X[train_index], X[test_index]
+    #        y_train, y_test = y[train_index], y[test_index]
+    #        scores=[]
+    #        for k in ks:
+    #            if verbose: print("=",end='',flush=True)
+    #            model = KNeighborsClassifier(n_neighbors=k)           
+    #            model.fit(X_train,y_train)
+    #            scores.append(model.score(X_test,y_test))
+    #        all_scores.append(scores)
+    #        if verbose: print(">")
+    #    all_scores = np.asarray(all_scores)
+    #    all_scores = all_scores.mean(axis=0)
+    #    return ks,all_scores
 
 #Decision Tree
 class DTREE(DATA_MINER):

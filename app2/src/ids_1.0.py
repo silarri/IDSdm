@@ -107,7 +107,7 @@ if MODE == 0: #DEBUG MODE:
 
     probs = classifier.predict_proba_intrusion(sim_input)
     predictions = [1 if y >= CONFIDENCE_THRESHOLD else 0 for y in probs] # 1 = intrusion
-    tn, fp, fn, tp = confusion_matrix(y_real, predictions).ravel()
+    tn, fp, fn, tp = confusion_matrix(y_real, predictions,labels=[0, 1]).ravel()
     p = tp / (tp + fp)
     r = tp / (tp + fn)
     f = 2 * (p*r / (p+r))
