@@ -23,7 +23,7 @@ from math import sqrt
 
 ########## Welcome and error functions #########################################
 def print_welcome():
-    print ("Welcome to the performance evaluation tool for the IDS-NET Project. \n")
+    print ("Welcome to ERTMD, the performance evaluation tool for the IDS-NET Project. \n")
     print ("Please indicate the relative path to the folder containing the training data.")
     print ("It MUST follow the following structure:\n")
     print ("folder/")
