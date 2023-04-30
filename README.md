@@ -1,3 +1,5 @@
+<img src="/IDSdm/images/IDSdm.png" alt="IDSdm" width="200"/>
+
 # Resumen
 Se ha analizado el rendimiento e idoneidad de distintas técnicas de minería de datos aplicadas sobre datos de comunicaciones en redes informáticas. Asimismo, se han desarrollado herramientas de apoyo. El desarrollo se enmarca en el contexto del proyecto de investigación NEAT-AMBIENCE, como soporte a la toma de decisiones ante retos de seguridad.
 
