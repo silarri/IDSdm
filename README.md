@@ -30,6 +30,7 @@ Se ha analizado el rendimiento e idoneidad de distintas técnicas de minería de
 
 # Logos
 
-<img src="https://user-images.githubusercontent.com/68403519/230162739-e06e6ae7-7a16-4e66-b9db-adc491c8aaa6.png" width="30%"> <img src="https://user-images.githubusercontent.com/68403519/230163472-d46505c7-719a-4a37-a81e-7868d4cc30bf.png">
+<img src="/images/NEAT-AMBIENCE-logo.png" width="30%"> <img src="/images/NEAT-AMBIENCE-funder.png">
 
-<img src="https://user-images.githubusercontent.com/68403519/230162835-2e80d2f5-fc20-40b9-927a-c03ffad8eee6.png" width="30%">
+<img src="/images/cosmos-logo.png" width="30%">
+<img src="/images/IDSdm.png" width="30%">
