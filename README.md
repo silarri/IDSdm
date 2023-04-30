@@ -33,4 +33,4 @@ Se ha analizado el rendimiento e idoneidad de distintas técnicas de minería de
 <img src="/images/NEAT-AMBIENCE-logo.png" width="30%"> <img src="/images/NEAT-AMBIENCE-funder.png">
 
 <img src="/images/cosmos-logo.png" width="30%">
-<img src="/images/IDSdm.png" width="30%">
+<img src="/images/IDSdm.png" width="10%">
