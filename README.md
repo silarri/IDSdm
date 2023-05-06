@@ -18,7 +18,7 @@ Se ha analizado el rendimiento e idoneidad de distintas técnicas de minería de
 
 - Este trabajo se ha desarrollado como parte del proyecto de I+D+i PID2020-113037RB-I00, financiado por MCIN/AEI/ 10.13039/501100011033.
 
-- Además del proyecto previo (proyecto NEAT-AMBIENCE), se agradece también el apoyo del Departamento de Ciencia, Universidad y Sociedad del Conocimiento del Gobierno de Aragón (Gobierno de Aragón: grupo COSMOS; última referencia del grupo: T64_20R).
+- Además del proyecto previo (proyecto NEAT-AMBIENCE), se agradece también el apoyo del Departamento de Ciencia, Universidad y Sociedad del Conocimiento del Gobierno de Aragón (Gobierno de Aragón: grupo COSMOS; última referencia del grupo: T64_23R).
 
 # Página web
 
