@@ -28,7 +28,7 @@ Se ha analizado el rendimiento e idoneidad de distintas técnicas de minería de
 
 # Agradecimientos
 
-- Arturo Calvera (estudiante de la Universidad de Zaragoza) desarrolló el TFG relacionado "Minería de datos para detección de intrusiones en redes de comunicaciones", dirigido por Sergio Ilarri y Fernando Tricas.
+- Arturo Calvera (estudiante de la Universidad de Zaragoza) desarrolló el TFG relacionado "Minería de datos para detección de intrusiones en redes de comunicaciones", dirigido por Sergio Ilarri y Fernando Tricas. La versión 1.0 de este código se implementó en el marco de este TFG, en colaboración con el proyecto NEAT-AMBIENCE.
 
 # Logos
 
